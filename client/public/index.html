@@ -6,10 +6,13 @@
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     
-    <!-- Remove or fix manifest.json link -->
-    <!-- <link rel="manifest" href="%PUBLIC_URL%/manifest.json" /> -->
+    <!-- If you have preload links, add proper 'as' attribute -->
+    <link rel="preload" href="path-to-font.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="path-to-image.jpg" as="image">
+    <link rel="preload" href="path-to-styles.css" as="style">
+    <link rel="preload" href="path-to-script.js" as="script">
     
-    <title>Your App</title>
+    <title>Recipe Sharing App</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
