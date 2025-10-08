@@ -23,10 +23,23 @@ const Home = () => {
         axios.get('/api/recipes?limit=6&sort=-averageRating')
       ]);
       
-      setFeaturedRecipes(featuredResponse.data);
-      setTopRated(topRatedResponse.data.recipes);
+      // Safe data handling - ensure we always set arrays
+      setFeaturedRecipes(Array.isArray(featuredResponse.data) ? featuredResponse.data : []);
+      
+      // Handle topRated response - it might be an array directly or nested in .recipes
+      let topRatedData = [];
+      if (Array.isArray(topRatedResponse.data)) {
+        topRatedData = topRatedResponse.data;
+      } else if (topRatedResponse.data && Array.isArray(topRatedResponse.data.recipes)) {
+        topRatedData = topRatedResponse.data.recipes;
+      }
+      setTopRated(topRatedData);
+      
     } catch (error) {
       console.error('Error fetching home data:', error);
+      // Ensure we set empty arrays on error too
+      setFeaturedRecipes([]);
+      setTopRated([]);
     } finally {
       setLoading(false);
     }

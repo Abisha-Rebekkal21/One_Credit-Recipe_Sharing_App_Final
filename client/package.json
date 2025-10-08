@@ -1,6 +1,6 @@
 {
   "name": "recipe-sharing-client",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -15,9 +15,11 @@
     "react-scripts": "5.0.1",
     "web-vitals": "^5.1.0"
   },
+  "homepage": ".",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "dev": "react-scripts start",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -35,3 +37,4 @@
   },
   "proxy": "http://localhost:5000"
 }
+
