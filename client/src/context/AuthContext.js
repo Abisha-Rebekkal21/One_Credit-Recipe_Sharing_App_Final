@@ -3,6 +3,9 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
+// Use environment variable or fallback to your deployed backend
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://recipe-sharing-server-9vja.onrender.com';
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -17,16 +20,17 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    console.log('🔧 API Base URL:', API_BASE_URL);
     checkAuthStatus();
   }, []);
 
   const checkAuthStatus = async () => {
     try {
       console.log('🔍 Checking authentication status...');
-      console.log('🌐 Making request to /auth/user with credentials...');
+      console.log('🌐 Making request to:', `${API_BASE_URL}/auth/user`);
       
-      const response = await axios.get('/auth/user', { 
-        withCredentials: true // This is crucial!
+      const response = await axios.get(`${API_BASE_URL}/auth/user`, { 
+        withCredentials: true
       });
       
       console.log('✅ Auth check successful:', response.data);
@@ -50,14 +54,13 @@ export const AuthProvider = ({ children }) => {
   const login = () => {
     console.log('🚀 Redirecting to Google OAuth...');
     setError(null);
-    // Use window.open to avoid React Router issues
-    window.open('http://localhost:5000/auth/google', '_self');
+    window.location.href = `${API_BASE_URL}/auth/google`;
   };
 
   const logout = async () => {
     try {
       console.log('🚪 Logging out...');
-      await axios.get('/auth/logout', { withCredentials: true });
+      await axios.get(`${API_BASE_URL}/auth/logout`, { withCredentials: true });
       setUser(null);
       setError(null);
       window.location.href = '/';

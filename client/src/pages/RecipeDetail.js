@@ -4,6 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import LoadingSpinner from '../components/LoadingSpinner';
 
+// Use environment variable or fallback to your deployed backend
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://recipe-sharing-server-9vja.onrender.com';
+
 const RecipeDetail = () => {
   const { id } = useParams();
   const { user } = useAuth();
@@ -19,7 +22,9 @@ const RecipeDetail = () => {
 
   const fetchRecipe = async () => {
     try {
-      const response = await axios.get(`/api/recipes/${id}`);
+      console.log('📖 Fetching recipe details for ID:', id);
+      const response = await axios.get(`${API_BASE_URL}/api/recipes/${id}`);
+      console.log('✅ Recipe data received:', response.data);
       setRecipe(response.data);
       
       if (user) {
@@ -31,7 +36,12 @@ const RecipeDetail = () => {
         }
       }
     } catch (error) {
-      console.error('Error fetching recipe:', error);
+      console.error('❌ Error fetching recipe:', error);
+      console.log('📊 Error details:', {
+        status: error.response?.status,
+        message: error.response?.data?.message,
+        url: error.config?.url
+      });
     } finally {
       setLoading(false);
     }
@@ -46,11 +56,12 @@ const RecipeDetail = () => {
 
     setRatingLoading(true);
     try {
-      await axios.post(`/api/recipes/${id}/rate`, { rating });
+      console.log('⭐ Rating recipe:', rating);
+      await axios.post(`${API_BASE_URL}/api/recipes/${id}/rate`, { rating });
       setUserRating(rating);
       fetchRecipe(); // Refresh to show updated rating
     } catch (error) {
-      console.error('Error rating recipe:', error);
+      console.error('❌ Error rating recipe:', error);
       alert('Error rating recipe. Please try again.');
     } finally {
       setRatingLoading(false);
@@ -105,9 +116,9 @@ const RecipeDetail = () => {
             </div>
 
             <div className="author-section">
-              <img src={recipe.author.avatar} alt={recipe.author.name} className="author-avatar" />
+              <img src={recipe.author?.avatar || '/default-avatar.jpg'} alt={recipe.author?.name} className="author-avatar" />
               <div className="author-info">
-                <span className="author-name">By {recipe.author.name}</span>
+                <span className="author-name">By {recipe.author?.name || 'Unknown'}</span>
                 <span className="recipe-date">
                   Posted on {new Date(recipe.createdAt).toLocaleDateString()}
                 </span>
@@ -168,7 +179,7 @@ const RecipeDetail = () => {
           <Link to="/recipes" className="cta-button secondary">
             ← Back to Recipes
           </Link>
-          {user && user._id === recipe.author._id && (
+          {user && user._id === recipe.author?._id && (
             <button className="cta-button primary">
               Edit Recipe (Coming Soon)
             </button>

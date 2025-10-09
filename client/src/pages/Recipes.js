@@ -4,6 +4,9 @@ import axios from 'axios';
 import RecipeCard from '../components/RecipeCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 
+// Use environment variable or fallback to your deployed backend
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://recipe-sharing-server-9vja.onrender.com';
+
 const Recipes = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -26,7 +29,15 @@ const Recipes = () => {
   const fetchRecipes = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/api/recipes', { params: filters });
+      console.log('🔍 Fetching recipes with filters:', filters);
+      console.log('🌐 API URL:', `${API_BASE_URL}/api/recipes`);
+      
+      const response = await axios.get(`${API_BASE_URL}/api/recipes`, { 
+        params: filters,
+        withCredentials: true 
+      });
+      
+      console.log('✅ Recipes data received:', response.data);
       
       // Add safety checks for the response data
       const recipesData = response.data?.recipes || [];
@@ -35,7 +46,13 @@ const Recipes = () => {
       setRecipes(recipesData);
       setTotalPages(pages);
     } catch (error) {
-      console.error('Error fetching recipes:', error);
+      console.error('❌ Error fetching recipes:', error);
+      console.log('📊 Error details:', {
+        status: error.response?.status,
+        message: error.response?.data?.message,
+        url: error.config?.url
+      });
+      
       alert('Error loading recipes. Please try again.');
       // Reset to empty array on error
       setRecipes([]);

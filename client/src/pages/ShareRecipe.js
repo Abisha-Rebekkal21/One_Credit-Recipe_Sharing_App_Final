@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
+// Use environment variable or fallback to your deployed backend
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://recipe-sharing-server-9vja.onrender.com';
+
 const ShareRecipe = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -65,6 +68,9 @@ const ShareRecipe = () => {
     setLoading(true);
     
     try {
+      console.log('📝 Submitting recipe data:', formData);
+      console.log('🌐 API URL:', `${API_BASE_URL}/api/recipes`);
+      
       // Filter out empty ingredients and instructions
       const submitData = {
         ...formData,
@@ -72,12 +78,29 @@ const ShareRecipe = () => {
         instructions: formData.instructions.filter(inst => inst.trim() !== '')
       };
 
-      await axios.post('/api/recipes', submitData);
+      const response = await axios.post(`${API_BASE_URL}/api/recipes`, submitData, {
+        withCredentials: true
+      });
+      
+      console.log('✅ Recipe created successfully:', response.data);
       alert('Recipe shared successfully!');
       navigate('/recipes');
     } catch (error) {
-      console.error('Error creating recipe:', error);
-      alert('Error creating recipe. Please try again.');
+      console.error('❌ Error creating recipe:', error);
+      console.log('📊 Error details:', {
+        status: error.response?.status,
+        message: error.response?.data?.message,
+        url: error.config?.url
+      });
+      
+      if (error.response?.status === 401) {
+        alert('Please log in to share recipes.');
+        navigate('/');
+      } else if (error.response?.status === 400) {
+        alert('Invalid recipe data. Please check all fields and try again.');
+      } else {
+        alert('Error creating recipe. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
