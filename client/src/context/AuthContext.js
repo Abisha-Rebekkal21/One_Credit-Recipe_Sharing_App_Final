@@ -3,8 +3,12 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
-// Use environment variable or fallback to your deployed backend
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://recipe-sharing-server-9vja.onrender.com';
+// Use the correct URL from your console
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://recipe-sharing-server-9vfa.onrender.com';
+
+// Configure axios defaults
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = API_BASE_URL;
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -26,11 +30,15 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
+      setLoading(true);
       console.log('🔍 Checking authentication status...');
-      console.log('🌐 Making request to:', `${API_BASE_URL}/auth/user`);
+      console.log('🌐 Making request to:', `${API_BASE_URL}/multi/user`);
       
-      const response = await axios.get(`${API_BASE_URL}/auth/user`, { 
-        withCredentials: true
+      const response = await axios.get('/multi/user', {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        }
       });
       
       console.log('✅ Auth check successful:', response.data);
@@ -44,8 +52,11 @@ export const AuthProvider = ({ children }) => {
         url: error.config?.url
       });
       
+      // 401 is expected when not authenticated, don't treat as error
+      if (error.response?.status !== 401) {
+        setError(error.response?.data?.message || 'Authentication check failed');
+      }
       setUser(null);
-      setError(error.response?.data?.message || 'Authentication check failed');
     } finally {
       setLoading(false);
     }
@@ -54,19 +65,20 @@ export const AuthProvider = ({ children }) => {
   const login = () => {
     console.log('🚀 Redirecting to Google OAuth...');
     setError(null);
+    // This should redirect to your backend OAuth endpoint
     window.location.href = `${API_BASE_URL}/auth/google`;
   };
 
   const logout = async () => {
     try {
       console.log('🚪 Logging out...');
-      await axios.get(`${API_BASE_URL}/auth/logout`, { withCredentials: true });
-      setUser(null);
-      setError(null);
-      window.location.href = '/';
+      await axios.get('/auth/logout', { withCredentials: true });
     } catch (error) {
       console.error('Logout error:', error);
+    } finally {
       setUser(null);
+      setError(null);
+      // Force full page reload to clear any state
       window.location.href = '/';
     }
   };
