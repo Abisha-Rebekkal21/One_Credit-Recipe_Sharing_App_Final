@@ -8,7 +8,9 @@ dotenv.config();
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "/auth/google/callback",
+  callbackURL: process.env.NODE_ENV === 'production' 
+    ? "https://recipe-sharing-server-9vja.onrender.com/auth/google/callback"
+    : "http://localhost:5000/auth/google/callback",
   scope: ['profile', 'email']
 }, async (accessToken, refreshToken, profile, done) => {
   try {

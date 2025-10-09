@@ -14,27 +14,35 @@ import './config/passport.js';
 dotenv.config();
 
 const app = express();
+// Add this after your middleware but before your routes
+app.set('trust proxy', 1); // Trust first proxy
 
-// Middleware (keep your existing middleware)
+// Your existing middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: [
+    'http://localhost:3000',
+    'https://one-credit-recipe-sharing-app-final-1.onrender.com',
+    'https://one-credit-recipe-sharing-app-final-5gflf0pdr.vercel.app'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With']
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Your session configuration (with the secure cookie fix)
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/recipe-app',
-    collectionName: 'sessions',
-    ttl: 24 * 60 * 60
+    mongoUrl: process.env.MONGODB_URI,
+    collectionName: 'sessions'
   }),
   cookie: {
-    secure: false,
+    secure: process.env.NODE_ENV === 'production', // true in production
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000,
     sameSite: 'lax'
