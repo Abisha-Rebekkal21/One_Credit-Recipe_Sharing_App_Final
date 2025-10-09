@@ -27,11 +27,19 @@ const Recipes = () => {
     setLoading(true);
     try {
       const response = await axios.get('/api/recipes', { params: filters });
-      setRecipes(response.data.recipes);
-      setTotalPages(response.data.totalPages);
+      
+      // Add safety checks for the response data
+      const recipesData = response.data?.recipes || [];
+      const pages = response.data?.totalPages || 1;
+      
+      setRecipes(recipesData);
+      setTotalPages(pages);
     } catch (error) {
       console.error('Error fetching recipes:', error);
       alert('Error loading recipes. Please try again.');
+      // Reset to empty array on error
+      setRecipes([]);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
@@ -99,12 +107,13 @@ const Recipes = () => {
         ) : (
           <>
             <div className="recipes-grid">
-              {recipes.map(recipe => (
+              {/* Add safety check for recipes array */}
+              {recipes && recipes.map(recipe => (
                 <RecipeCard key={recipe._id} recipe={recipe} />
               ))}
             </div>
 
-            {recipes.length === 0 && !loading && (
+            {(!recipes || recipes.length === 0) && !loading && (
               <div className="empty-state">
                 <h3>No recipes found</h3>
                 <p>Try adjusting your filters or be the first to share a recipe!</p>
