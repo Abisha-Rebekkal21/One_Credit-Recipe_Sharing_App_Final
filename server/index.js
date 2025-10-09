@@ -21,8 +21,9 @@ app.set('trust proxy', 1); // Trust first proxy
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://one-credit-recipe-sharing-app-final-1.onrender.com',
-    'https://one-credit-recipe-sharing-app-final-5gflf0pdr.vercel.app'
+    'https://one-credit-recipe-sharing-app-final.vercel.app',
+    'https://one-credit-recipe-sharing-app-final-7n49fjef6.vercel.app',
+    'https://one-credit-recipe-sharing-app-final-*.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
